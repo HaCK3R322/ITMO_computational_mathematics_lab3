@@ -27,7 +27,7 @@ public class IntegralSolver {
     public static final int TRAPEZOIDAL_METHOD = 4;
 
     private static final int START_NUMBER_OF_INTERVALS = 4;
-    private static final double RUNGE_K = (1.0/3.0);
+    private static final double RUNGE_K_FOR_RECTANGLES = (1.0/3.0);
 
     private static final QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> leftRectangleMethod = (func, a, b, numberOfSteps) -> {
         double step = (b - a) / numberOfSteps;
@@ -71,11 +71,8 @@ public class IntegralSolver {
 
         double step = (b - a) / numberOfSteps;
 
-        double firstFunc = (func.apply(a) + func.apply(b)) / 2;
-
-        answer += firstFunc;
         for (int i = 0; i < numberOfSteps; i++) {
-            answer += func.apply(a + i * step);
+            answer += (func.apply(a + i * step) + func.apply(a + (i + 1) * step)) / 2;
         }
         answer *= step;
 
@@ -93,14 +90,20 @@ public class IntegralSolver {
 
     public static Result solve(Function<Double, Double> func, Double a, Double b, Double accuracy, Integer methodKey) {
         int n = START_NUMBER_OF_INTERVALS;
+        double k = RUNGE_K_FOR_RECTANGLES;
 
         QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> function = functions.get(methodKey);
+        if(function == null) throw new Error("Method with key " + methodKey + " doesnt exist or not registered in HashMap of IntegralSolver!\n");
 
-        while (RUNGE_K * Math.abs(function.apply(func, a, b, 2*n) - function.apply(func, a, b, n)) >= accuracy) {
+        //Sometimes the runge rule does not work if the number of partitions is small, in this case you need to increase the number of partitions
+        if(k * Math.abs(function.apply(func, a, b, 2*n) - function.apply(func, a, b, n)) == 0.0) {
+            n *= 16;
+        }
+
+        while (k * Math.abs(function.apply(func, a, b, 2*n) - function.apply(func, a, b, n)) >= accuracy) {
             n *= 2;
         }
         n *= 4;
-
 
         return new Result(function.apply(func, a, b, n), n);
     }

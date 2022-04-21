@@ -71,7 +71,6 @@ class Lab3 {
                 System.out.println("trapezoidal method number of steps: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.TRAPEZOIDAL_METHOD).numberOfSteps);
             }
 
-
         } catch (InputMismatchException e) {
             System.out.println("Please enter decimal numbers separated by commas!");
         } catch (NumberFormatException e) {
