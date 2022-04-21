@@ -3,6 +3,7 @@ package com.androsov;
 import com.androsov.calc.IntegralSolver;
 
 import java.util.InputMismatchException;
+import java.util.Locale;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.function.Function;
@@ -51,10 +52,25 @@ class Lab3 {
                 accuracy = 0.00000001;
             }
 
-            System.out.println("left rectangle method: " + IntegralSolver.solve(function, a, b, accuracy, 1));
-            System.out.println("right rectangle method: " + IntegralSolver.rightRectangleMethod(function, a, b, accuracy));
-            System.out.println("middle rectangle method: " + IntegralSolver.middleRectangleMethod(function, a, b, accuracy));
-            System.out.println("метод трапеций: " + IntegralSolver.trapezoidalMethod(function, a, b, accuracy));
+            System.out.println("Do you want to see number of steps to achieve this accuracy? (y/anything else)");
+            boolean showAccuracy = false;
+            String answer = sc.next();
+            if(answer.equals("y"))
+                showAccuracy = true;
+
+
+            System.out.println("left rectangle method: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.LEFT_RECTANGLE_METHOD).result);
+            System.out.println("right rectangle method: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.RIGHT_RECTANGLE_METHOD).result);
+            System.out.println("middle rectangle method: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.MIDDLE_RECTANGLE_METHOD).result);
+            System.out.println("trapezoidal method: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.TRAPEZOIDAL_METHOD).result);
+
+            if (showAccuracy) {
+                System.out.println("left rectangle method number of steps: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.LEFT_RECTANGLE_METHOD).numberOfSteps);
+                System.out.println("right rectangle method number of steps: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.RIGHT_RECTANGLE_METHOD).numberOfSteps);
+                System.out.println("middle rectangle method number of steps: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.MIDDLE_RECTANGLE_METHOD).numberOfSteps);
+                System.out.println("trapezoidal method number of steps: " + IntegralSolver.solve(function, a, b, accuracy, IntegralSolver.TRAPEZOIDAL_METHOD).numberOfSteps);
+            }
+
 
         } catch (InputMismatchException e) {
             System.out.println("Please enter decimal numbers separated by commas!");

@@ -11,14 +11,25 @@ interface QuadFunction<A, B, C, D, R> {
 
 public class IntegralSolver {
 
+    public static class Result {
+        public Result(Double result, Integer numberOfSteps) {
+            this.result = result;
+            this.numberOfSteps = numberOfSteps;
+        }
+
+        public Double result;
+        public Integer numberOfSteps;
+    }
+
+    public static final int LEFT_RECTANGLE_METHOD = 1;
+    public static final int RIGHT_RECTANGLE_METHOD = 2;
+    public static final int MIDDLE_RECTANGLE_METHOD = 3;
+    public static final int TRAPEZOIDAL_METHOD = 4;
+
     private static final int START_NUMBER_OF_INTERVALS = 4;
     private static final double RUNGE_K = (1.0/3.0);
 
-    private static final QuadFunction<Function<Double, Double>,
-            Double,
-            Double,
-            Integer,
-            Double> leftRectangleMethod = (func, a, b, numberOfSteps) -> {
+    private static final QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> leftRectangleMethod = (func, a, b, numberOfSteps) -> {
         double step = (b - a) / numberOfSteps;
 
         double answer = 0.0;
@@ -29,26 +40,7 @@ public class IntegralSolver {
         return answer;
     };
 
-    //Hash map of methods
-    public static final HashMap<Integer, QuadFunction<Function<Double, Double>, Double, Double, Integer, Double>>
-            functions = new HashMap<>() {{
-        put(1, leftRectangleMethod);
-    }};
-
-    public static Double solve(Function<Double, Double> func, Double a, Double b, Double accuracy, Integer methodKey) {
-        int n = START_NUMBER_OF_INTERVALS;
-
-        QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> function = functions.get(methodKey);
-
-        System.out.println(functions.get(1));
-        while (RUNGE_K * Math.abs(function.apply(func, a, b, 2*n) - function.apply(func, a, b, n)) >= accuracy) {
-            n *= 2;
-        }
-
-        return function.apply(func, a, b, n);
-    }
-
-    private static Double rightRectangleMethod(Function<Double, Double> func, Double a, Double b, int numberOfSteps) {
+    private static final QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> rightRectangleMethod = (func, a, b, numberOfSteps) -> {
         double step = (b - a) / numberOfSteps;
 
         double answer = 0.0;
@@ -57,19 +49,9 @@ public class IntegralSolver {
         }
 
         return answer;
-    }
-    public static Double rightRectangleMethod(Function<Double, Double> func, Double a, Double b, Double accuracy) {
-        int n = START_NUMBER_OF_INTERVALS;
+    };
 
-        while (RUNGE_K * Math.abs(rightRectangleMethod(func, a, b, 2*n) - rightRectangleMethod(func, a, b, n)) >= accuracy) {
-//            System.out.println("For n = " + n + " answer is " + rightRectangleMethod(func, a, b, n));
-            n *= 2;
-        }
-
-        return rightRectangleMethod(func, a, b, n);
-    }
-
-    private static Double middleRectangleMethod(Function<Double, Double> func, Double a, Double b, int numberOfSteps) {
+    private static final QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> middleRectangleMethod = (func, a, b, numberOfSteps) -> {
         double step = (b - a) / numberOfSteps;
 
         double answer = 0.0;
@@ -82,43 +64,44 @@ public class IntegralSolver {
         }
 
         return answer;
-    }
-    public static Double middleRectangleMethod(Function<Double, Double> func, Double a, Double b, Double accuracy) {
-        int n = START_NUMBER_OF_INTERVALS;
+    };
 
-        while (RUNGE_K * Math.abs(middleRectangleMethod(func, a, b, 2*n) - middleRectangleMethod(func, a, b, n)) >= accuracy) {
-//            System.out.println("For n = " + n + " answer is " + middleRectangleMethod(func, a, b, n));
-            n *= 2;
-        }
-
-        return middleRectangleMethod(func, a, b, n);
-    }
-
-    private static Double trapezoidalMethod(Function<Double, Double> func, Double a, Double b, Integer n) {
+    private static final QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> trapezoidalMethod = (func, a, b, numberOfSteps) -> {
         double answer = 0.0;
 
-        double step = (b - a) / n;
+        double step = (b - a) / numberOfSteps;
 
         double firstFunc = (func.apply(a) + func.apply(b)) / 2;
 
         answer += firstFunc;
-        for (int i = 0; i < n; i++) {
+        for (int i = 0; i < numberOfSteps; i++) {
             answer += func.apply(a + i * step);
         }
         answer *= step;
 
         return answer;
-    }
+    };
 
-    public static Double trapezoidalMethod(Function<Double, Double> func, Double a, Double b, Double accuracy) {
+    //Hash map of methods
+    public static final HashMap<Integer, QuadFunction<Function<Double, Double>, Double, Double, Integer, Double>>
+            functions = new HashMap<>() {{
+        put(1, leftRectangleMethod);
+        put(2, rightRectangleMethod);
+        put(3, middleRectangleMethod);
+        put(4, trapezoidalMethod);
+    }};
+
+    public static Result solve(Function<Double, Double> func, Double a, Double b, Double accuracy, Integer methodKey) {
         int n = START_NUMBER_OF_INTERVALS;
 
-        while (RUNGE_K * Math.abs(trapezoidalMethod(func, a, b, 2*n) - trapezoidalMethod(func, a, b, n)) >= accuracy) {
-//            System.out.println("For n = " + n + " answer is " + trapezoidalMethod(func, a, b, n));
+        QuadFunction<Function<Double, Double>, Double, Double, Integer, Double> function = functions.get(methodKey);
+
+        while (RUNGE_K * Math.abs(function.apply(func, a, b, 2*n) - function.apply(func, a, b, n)) >= accuracy) {
             n *= 2;
         }
+        n *= 4;
 
-        System.out.println("Answer + accuracy = " + (trapezoidalMethod(func, a, b, n) + accuracy));
-        return trapezoidalMethod(func, a, b, n);
+
+        return new Result(function.apply(func, a, b, n), n);
     }
 }
