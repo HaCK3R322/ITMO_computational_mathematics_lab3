@@ -44,18 +44,22 @@ class Lab3 {
             double b = sc.nextDouble();
 
             System.out.println("Enter accuracy: ");
-            double accuracy = sc.nextDouble();
+            String accuracyStr = sc.next();
+            double accuracy = Double.parseDouble(accuracyStr);
             if(accuracy < 0.00000001) {
                 System.out.println("Cannot work accuracy lower than 0.00000001! Answers for accuracy = 0.00000001");
                 accuracy = 0.00000001;
             }
 
-            System.out.println("left rectangle method: " + IntegralSolver.leftRectangleMethod(function, a, b, accuracy));
+            System.out.println("left rectangle method: " + IntegralSolver.solve(function, a, b, accuracy, 1));
             System.out.println("right rectangle method: " + IntegralSolver.rightRectangleMethod(function, a, b, accuracy));
             System.out.println("middle rectangle method: " + IntegralSolver.middleRectangleMethod(function, a, b, accuracy));
+            System.out.println("метод трапеций: " + IntegralSolver.trapezoidalMethod(function, a, b, accuracy));
 
         } catch (InputMismatchException e) {
             System.out.println("Please enter decimal numbers separated by commas!");
+        } catch (NumberFormatException e) {
+            System.out.println("Please, enter a number!");
         }
     }
 }
