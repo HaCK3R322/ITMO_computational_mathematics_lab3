@@ -2,33 +2,66 @@ package com.androsov;
 
 import com.androsov.calc.IntegralSolver;
 
+import java.util.InputMismatchException;
+import java.util.Random;
+import java.util.Scanner;
 import java.util.function.Function;
+
+class Lab3 {
+    public static void init() {
+        final Scanner sc = new Scanner(System.in);
+
+        Function<Double, Double> f1 = x -> x;
+        Function<Double, Double> f2 = x -> x*x;
+        Function<Double, Double> f3 = x-> Math.sqrt(x);
+        Function<Double, Double> f4 = x -> -x*x*x - x*x - 2*x + 1;
+
+        System.out.println("Functions you can integrate: ");
+        System.out.println("1: f(x) = x");
+        System.out.println("2: f(x) = x^(2)");
+        System.out.println("3: f(x) = x^(1/2)");
+        System.out.println("4: f(x) = -x^(3) - x^(2) - 2x + 1");
+
+        System.out.println("Choose function (int): ");
+        try {
+            int funcId = sc.nextInt();
+
+            Function<Double, Double> function;
+            switch (funcId) {
+                case 1 -> function = f1;
+                case 2 -> function = f2;
+                case 3 -> function = f3;
+                case 4 -> function = f4;
+                default -> {
+                    System.out.println("NO SUCH FUNCTION!");
+                    return;
+                }
+            }
+            System.out.println("Enter start of interval: ");
+            double a = sc.nextDouble();
+
+            System.out.println("Enter end of interval: ");
+            double b = sc.nextDouble();
+
+            System.out.println("Enter accuracy: ");
+            double accuracy = sc.nextDouble();
+            if(accuracy < 0.00000001) {
+                System.out.println("Cannot work accuracy lower than 0.00000001! Answers for accuracy = 0.00000001");
+                accuracy = 0.00000001;
+            }
+
+            System.out.println("left rectangle method: " + IntegralSolver.leftRectangleMethod(function, a, b, accuracy));
+            System.out.println("right rectangle method: " + IntegralSolver.rightRectangleMethod(function, a, b, accuracy));
+            System.out.println("middle rectangle method: " + IntegralSolver.middleRectangleMethod(function, a, b, accuracy));
+
+        } catch (InputMismatchException e) {
+            System.out.println("Please enter decimal numbers separated by commas!");
+        }
+    }
+}
 
 public class Main {
     public static void main(String[] args) {
-
-        Double a = (double)(-2);
-        Double b = (double)10;
-
-        Function<Double, Double> f1 = x -> 2*x*x;
-
-
-        for (int i = 2; i < 1000000; i *= 2) {
-            Double answer = IntegralSolver.leftRectangleMethod(f1, a, b, (double)i);
-            System.out.println("(LeftRect)  Number of steps: " + i + "  Answer: " + answer + "  Difference: " + ((double)672 - answer) +
-                    "   Accuracy: " + ( (answer)/672 )*100 + "%");
-        }
-        System.out.println("--------------------------------------------------------");
-        for (int i = 2; i < 1000000; i *= 4) {
-            Double answer = IntegralSolver.rightRectangleMethod(f1, a, b, (double)i);
-            System.out.println("(RightRect) Number of steps: " + i + "  Answer: " + answer + "  Difference: " + ((double)672 - answer) +
-                    "   Accuracy: " + ( 672/answer )*100 + "%");
-        }
-        System.out.println("--------------------------------------------------------");
-        for (int i = 2; i < 1000000; i *= 2) {
-            Double answer = IntegralSolver.middleRectangleMethod(f1, a, b, (double)i);
-            System.out.println("(MiddleRect) Number of steps: " + i + "  Answer: " + answer + "  Difference: " + ((double)672 - answer) +
-                    "   Accuracy: " + ( answer/672 )*100 + "%");
-        }
+        Lab3.init();
     }
 }
